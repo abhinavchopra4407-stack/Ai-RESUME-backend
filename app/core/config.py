@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./resumeiq.db")
     CORS_ORIGINS: str = os.getenv(
         "CORS_ORIGINS",
-        "http://localhost:5173,http://127.0.0.1:5173,https://ai-resume-analyzer-livid-five.vercel.app"
+        "http://localhost:5173,http://127.0.0.1:5173,https://ai-resume-analyzer-org13.vercel.app"
     )
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", os.getenv("OPEN_API_KEY", ""))
 
