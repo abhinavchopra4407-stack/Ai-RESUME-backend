@@ -10,7 +10,7 @@ from app.services.resume_parser import ResumeParser
 from app.services.ai_service import AIService
 from app.services.ats_scorer import ATSScorer
 from app.services.job_matcher import JobMatcher
-from app.schemas.resume import ResumeCreate, ResumeResponse, AnalysisResponse
+from app.schemas.resume import ResumeCreate, ResumeResponse, AnalysisResponse, ResumeDetailsResponse
 import shutil
 from datetime import datetime
 import os
@@ -53,37 +53,19 @@ async def upload_resume(
 
     return resume
 
-@router.get("", response_model=List[ResumeResponse])
+@router.get("", response_model=List[ResumeDetailsResponse])
 def list_resumes(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     return db.query(Resume).filter(Resume.user_id == current_user.id).order_by(Resume.id.desc()).all()
 
-@router.get("/{resume_id}")
+@router.get("/{resume_id}", response_model=ResumeDetailsResponse)
 def get_resume(resume_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     resume = db.query(Resume).filter(Resume.id == resume_id, Resume.user_id == current_user.id).first()
     if not resume:
         raise HTTPException(status_code=404, detail="Resume not found")
-    return {
-        "id": resume.id,
-        "user_id": resume.user_id,
-        "filename": resume.filename,
-        "uploaded_at": resume.uploaded_at,
-        "file_content_text": resume.file_content_text,
-        "analyses": [
-            {
-                "id": analysis.id,
-                "resume_id": analysis.resume_id,
-                "job_description": analysis.job_description,
-                "ats_score": analysis.ats_score,
-                "feedback": analysis.feedback,
-                "job_matching": analysis.job_matching,
-                "created_at": analysis.created_at,
-            }
-            for analysis in resume.analyses
-        ],
-    }
+    return resume
 
 @router.post("/{resume_id}/analyze", response_model=AnalysisResponse)
 async def analyze_resume(
